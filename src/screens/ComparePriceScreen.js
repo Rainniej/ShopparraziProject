@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 16,
-    color: "#FF006B",
+    color: "Black",
   },
   storeTitle: {
     fontSize: 18,
