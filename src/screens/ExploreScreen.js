@@ -1,149 +1,130 @@
-// screens/ExploreScreen.js
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-// Import local images for categories
-import fruitsImage from '../../assets/cat1.png';
-import meatImage from '../../assets/cat2.png';
-import milkAndEggImage from '../../assets/cat3.png';
-import snacksImage from '../../assets/cat4.png'; 
-import beveragesImage from '../../assets/cat5.png';
-import bakeryImage from '../../assets/cat6.png'; 
-
-// Import local images for buy again items
-import milkImage from '../../assets/milk.jpg';
-import eggsImage from '../../assets/eggs.jpg';
+// Sample data for products (replace with actual data from backend)
+const products = [
+  {
+    id: "1",
+    name: "Cadbury Dairy Milk Chocolate Block",
+    image: require("../../assets/Choco1.png"),
+  },
+];
 
 const ExploreScreen = () => {
-  // Dummy data for previously bought items and categories
-  const buyAgainItems = [
-    { id: '1', name: 'Dairy Farmers Full Cream Milk', image: milkImage, price: '$4.30', store: 'woolworths' },
-    { id: '2', name: 'Pace Farm Liberty Eggs 6 Large Cage Free Eggs', image: eggsImage, price: '$3.90', store: 'woolworths' },
-    // ... more items
-  ];
+  const navigation = useNavigation();
+  const route = useRoute();
+  const [quantity, setQuantity] = useState(0);
 
-  const categories = [
-    { id: '1', name: 'Fruits', image: fruitsImage },
-    { id: '2', name: 'Meat', image: meatImage },
-    { id: '3', name: 'Milk & Egg', image: milkAndEggImage },
-    { id: '4', name: 'Snacks', image: snacksImage }, // New category
-    { id: '5', name: 'Beverages', image: beveragesImage }, // New category
-    { id: '6', name: 'Bakery', image: bakeryImage }, // New category
-    // ... more categories
-  ];
+  // Extract search text from route parameters
+  const { searchText } = route.params || {};
+
+  // Filter products based on search text
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleAddToList = () => {
+    // Navigate to the shopping list screen with the selected product and quantity
+    navigation.navigate("ShoppingList", {
+      product: filteredProducts[0],
+      quantity,
+    });
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TextInput style={styles.searchInput} placeholder="Search" />
-        <TouchableOpacity>
-          <Ionicons name="search-outline" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buyAgainSection}>
-        <Text style={styles.sectionTitle}>Buy again</Text>
-        <FlatList
-          data={buyAgainItems}
-          horizontal
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.buyAgainItem}>
-              <Image source={item.image} style={styles.buyAgainImage} />
-              <Text style={styles.buyAgainName}>{item.name}</Text>
-              <Text style={styles.buyAgainPrice}>{item.price}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-      <View style={styles.categoriesSection}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <FlatList
-          data={categories}
-          numColumns={3}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.categoryItem}>
-              <Image source={item.image} style={styles.categoryImage} />
-              <Text style={styles.categoryText}>{item.name}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
-    </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Product Details</Text>
+      {filteredProducts.map((product) => (
+        <View key={product.id} style={styles.productItem}>
+          <Image source={product.image} style={styles.productImage} />
+          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.quantityLabel}>180g $3.00</Text>
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityLabel}>Quantity:</Text>
+            <TextInput
+              style={styles.quantityInput}
+              placeholder="0-10"
+              keyboardType="numeric"
+              value={quantity.toString()}
+              onChangeText={(text) => setQuantity(parseInt(text) || 0)}
+            />
+          </View>
+        </View>
+      ))}
+      <TouchableOpacity style={styles.addButton} onPress={handleAddToList}>
+        <Text style={styles.addButtonLabel}>Add to List</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flexGrow: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    paddingTop: 20,
+    paddingBottom: 40,
   },
-  searchContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    margin: 10,
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FF006B",
+    marginBottom: 20,
   },
-  searchInput: {
-    flex: 1,
+  productItem: {
+    alignItems: "center",
+    marginBottom: 50,
   },
-  buyAgainSection: {
-    marginVertical: 10,
+  productImage: {
+    width: 180,
+    height: 180,
+    resizeMode: "contain",
+    borderRadius: 10,
   },
-  sectionTitle: {
+  productName: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
+    fontWeight: "bold",
     marginTop: 10,
   },
-  buyAgainItem: {
-    margin: 10,
-    width: 120,
-    alignItems: 'center',
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 20,
   },
-  buyAgainImage: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    borderRadius: 5,
+  quantityLabel: {
+    fontSize: 20,
+    marginRight: 10,
+    marginTop: 10,
   },
-  buyAgainName: {
-    marginTop: 5,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  buyAgainPrice: {
-    fontSize: 15,
-    color: 'gray',
-    textAlign: 'center',
-  },
-  categoriesSection: {
-    marginVertical: 10,
-  },
-  categoryItem: {
-    margin: 15,
-    width: 100,
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
+  quantityInput: {
     borderWidth: 1,
-    borderColor: '#FF006B',
+    borderColor: "#ccc",
     borderRadius: 5,
+    paddingHorizontal: 10,
+    width: 50,
+    textAlign: "center",
   },
-  categoryImage: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: -15,
-    borderRadius: 5,
-  },
-  categoryText: {
-    fontSize: 14,
-    textAlign: 'center',
+  addButton: {
+    backgroundColor: "#FF006B",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 20,
     marginTop: 10,
+  },
+  addButtonLabel: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

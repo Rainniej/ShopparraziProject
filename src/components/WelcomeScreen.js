@@ -18,7 +18,7 @@ const WelcomeScreen = () => {
       />
 
       {/* Text */}
-      <Text style={styles.text}>{'\n'}Welcome to Grocery Shopping </Text>
+      <Text style={styles.text}>{'\n'}Welcome to Shopparrazi!!! </Text>
       <Text style={styles.description}>
         Unlock Unbeatable Grocery Deals
         Price Compare with Ease!
@@ -26,13 +26,16 @@ const WelcomeScreen = () => {
 
       {/* Button */}
       <TouchableOpacity style={styles.button}
-      onPress={() => navigation.navigate('Home')}
+      onPress={() => navigation.navigate('Main')}
       >
-        <Text style={styles.buttonText}>Get Started</Text>
+        <Text style={styles.buttonText}>Create Shopping List</Text>
+      </TouchableOpacity>
+
+      {/* Button to view previous orders */}
+      <TouchableOpacity style={styles.button} disabled={true}>
+        <Text style={styles.buttonText}>View Previous Orders</Text>
       </TouchableOpacity>
     </View>
-
-    
   );
 };
     
@@ -44,8 +47,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: wp(160), // Adjust width using responsive screen
-    height: hp(67), // Adjust height using responsive screen
+    width: wp(162), // Adjust width using responsive screen
+    height: hp(62), // Adjust height using responsive screen
     resizeMode: 'contain',
     marginBottom: 10,
   },
@@ -53,21 +56,21 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: 'white',
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   description: {
     fontSize: 18,
     color: 'white',
     textAlign: 'center',
     paddingHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 40,
   },
   button: {
     backgroundColor: 'white',
     paddingVertical: 10,
     paddingHorizontal: 25,
     borderRadius: 10,
-    
+    marginBottom: 20,
   },
   buttonText: {
     fontSize: 18,

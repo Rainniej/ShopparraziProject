@@ -1,185 +1,117 @@
-// src/screens/ProductDetailScreen.js
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import CartContext from '../context/CartContext';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-const ProductDetailScreen = ({ route, navigation }) => {
-  const { product } = route.params;
-  const { cart, setCart } = useContext(CartContext);
-  const [prices, setPrices] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Sample data for products (replace with actual data from backend)
+const products = [
+  { id: '1', name: 'Cadbury Dairy Milk Chocolate Block', image: require('../../assets/Choco1.png') },
+];
 
-  useEffect(() => {
-    const fetchPrices = async () => {
-      // Mock data
-      const mockData = {
-        product: "Chobani Oat Milk Barista Edition",
-        prices: [
-          {
-            store: "Coles",
-            price: 4.00,
-            url: "https://www.coles.com.au/product/chobani-oat-milk-barista-edition-1l-5443825"
-          },
-          {
-            store: "Woolworths",
-            price: 5.00,
-            url: "https://www.woolworths.com.au/shop/productdetails/238299/chobani-oat-milk-barista-edition"
-          },
-          {
-            store: "Aldi",
-            price: 6.00,
-            url: "https://www.aldi.com.au/groceries/fresh-produce/dairy-eggs/"
-          }
-        ]
-      };
+const ExploreScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const [quantity, setQuantity] = useState(0);
 
-      setPrices(mockData.prices);
-      setLoading(false);
-    };
+  // Extract search text from route parameters
+  const { searchText } = route.params || {};
 
-    fetchPrices();
-  }, [product.name]);
-
-  const addToCart = () => {
-    setCart([...cart, { ...product, id: Date.now().toString(), quantity: 1 }]);
-    navigation.navigate('Cart');
-  };
-
-  const renderPriceItem = ({ item }) => (
-    <View style={styles.priceItem}>
-      <Text style={styles.storeName}>{item.store}</Text>
-      <Text style={styles.storePrice}>${item.price.toFixed(2)}</Text>
-    </View>
+  // Filter products based on search text
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  const handleAddToList = () => {
+    // Navigate to the shopping list screen with the selected product and quantity
+    navigation.navigate('ShoppingList', { product: filteredProducts[0], quantity });
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image source={product.image} style={styles.image} />
-      </View>
-      <View style={styles.detailsContainer}>
-        <Text style={styles.title}>{product.name}</Text>
-        <Text style={styles.size}>Size: {product.size}</Text>
-       {/* Row for the "No added sugar" feature */}
-       <View style={styles.featureRow}>
-            <Text style={[styles.featureText, styles.noFeature]}>✘</Text>
-            <Text style={styles.featureLabel}>No added sugar</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>Product Details</Text>
+      {filteredProducts.map(product => (
+        <View key={product.id} style={styles.productItem}>
+          <Image source={product.image} style={styles.productImage} />
+          <Text style={styles.productName}>{product.name}</Text>
+          <Text style={styles.quantityLabel}>180g $3.00</Text>
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityLabel}>Quantity:</Text>
+            <TextInput
+              style={styles.quantityInput}
+              placeholder="0-10"
+              keyboardType="numeric"
+              value={quantity.toString()}
+              onChangeText={text => setQuantity(parseInt(text) || 0)}
+            />
           </View>
-          {/* Row for the "Nut free" feature */}
-          <View style={styles.featureRow}>
-            <Text style={[styles.featureText, styles.noFeature]}>✘</Text>
-            <Text style={styles.featureLabel}>Nut free</Text>
-          </View>
-          {/* Row for the "Soy free" feature */}
-          <View style={styles.featureRow}>
-            <Text style={[styles.featureText, styles.hasFeature]}>✘</Text>
-            <Text style={styles.featureLabel}>Soy free</Text>
-          </View>
-        <Text style={styles.price}>Price: ${product.price}</Text>
-        <Text style={styles.store}>Store: {product.store}</Text>
-      </View>
-      <TouchableOpacity style={styles.addButton} onPress={addToCart}>
-        <Text style={styles.addButtonText}>Add to Cart</Text>
+        </View>
+      ))}
+      <TouchableOpacity style={styles.addButton} onPress={handleAddToList}>
+        <Text style={styles.addButtonLabel}>Add to List</Text>
       </TouchableOpacity>
-      <View style={styles.priceComparisonContainer}>
-        <Text style={styles.priceComparisonTitle}>Price Comparison</Text>
-        {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : (
-          <FlatList
-            data={prices}
-            renderItem={renderPriceItem}
-            keyExtractor={(item) => item.store}
-          />
-        )}
-      </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 16,
+    flexGrow: 1,
     backgroundColor: '#fff',
-  },
-  imageContainer: {
     alignItems: 'center',
-    marginBottom: 16,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    resizeMode: 'contain',
-  },
-  detailsContainer: {
-    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 8,
+    color: '#FF006B',
+    marginBottom: 20,
   },
-  size: {
-    fontSize: 18,
-    marginBottom: 8,
-  },
-  featuresContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  productItem: {
     alignItems: 'center',
+    marginBottom: 50,
   },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 8,
+  productImage: {
+    width: 180,
+    height: 180,
+    resizeMode: 'contain',
+    borderRadius: 10,
   },
-  featureText: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  price: {
+  productName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginTop: 10,
   },
-  store: {
-    fontSize: 16,
-    color: 'gray',
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  quantityLabel: {
+    fontSize: 20,
+    marginRight: 10,
+    marginTop: 10,
+  },
+  quantityInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    width: 50,
+    textAlign: 'center',
+    marginTop: 10,
   },
   addButton: {
     backgroundColor: '#FF006B',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 10,
   },
-  addButtonText: {
+  addButtonLabel: {
     color: '#fff',
-    fontSize: 18,
-  },
-  priceComparisonContainer: {
-    marginTop: 20,
-  },
-  priceComparisonTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  priceItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  storeName: {
-    fontSize: 16,
-  },
-  storePrice: {
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
 
-export default ProductDetailScreen;
+export default ExploreScreen;
