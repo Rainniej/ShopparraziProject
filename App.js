@@ -11,6 +11,7 @@ import ProductDetailScreen from "./src/screens/ProductDetailScreen";
 import BottomNavigation from "./src/components/BottomNavigation";
 import WelcomeScreen from "./src/components/WelcomeScreen";
 import ComparePriceScreen from "./src/screens/ComparePriceScreen";
+import CheckoutScreen from "./src/components/CheckoutScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -20,8 +21,9 @@ const HomeStack = () => (
     <Stack.Screen name="Product Catalog" component={HomeScreen} />
     <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
     <Stack.Screen name="ShoppingList" component={ProductDetailScreen} />
+    <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} />
     <Stack.Screen name="ComparePrice" component={ComparePriceScreen} />
-    <Stack.Screen name="Cart" component={CartScreen} />
+    <Stack.Screen name="CartScreen" component={CartScreen} />
   </Stack.Navigator>
 );
 
@@ -100,6 +102,11 @@ const App = () => {
           name="ProductDetail"
           component={ProductDetailScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Checkout"
+          component={CheckoutScreen}
+          options={{ headerShown: true }}
         />
         <Stack.Screen
           name="Cart"

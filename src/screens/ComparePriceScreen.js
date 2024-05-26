@@ -67,12 +67,6 @@ const ComparePriceScreen = ({ navigation }) => {
       >
         <Text style={styles.buttonText}>Place order from Woolworths</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.button, styles.editButton]}
-        onPress={() => navigation.navigate("ShoppingListScreen")}
-      >
-        <Text style={styles.buttonText}>Edit Shopping List</Text>
-      </TouchableOpacity>
       <View style={styles.navigationBar} />
     </View>
   );
@@ -88,7 +82,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 16,
-    color: "Black",
+    color: "#FF006B",
   },
   storeTitle: {
     fontSize: 18,

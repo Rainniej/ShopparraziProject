@@ -29,12 +29,12 @@ const HomeScreen = () => {
 
   const handleSearch = () => {
     // Navigate to explore page with search text
-    navigation.navigate("Explore", { searchText });
+    navigation.navigate("Explore");
   };
 
   const handleCategoryPress = (category) => {
     if (category.name === "Snacks") {
-      navigation.navigate("ProductDetailScreen");
+      navigation.navigate("Explore");
     }
   };
 

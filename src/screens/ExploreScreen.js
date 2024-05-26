@@ -24,8 +24,8 @@ const ExploreScreen = () => {
   const route = useRoute();
   const [quantity, setQuantity] = useState(0);
 
-  // Extract search text from route parameters
-  const { searchText } = route.params || {};
+  // Extract search text from route parameters and provide a default value
+  const { searchText = "" } = route.params || {};
 
   // Filter products based on search text
   const filteredProducts = products.filter((product) =>
@@ -33,11 +33,13 @@ const ExploreScreen = () => {
   );
 
   const handleAddToList = () => {
-    // Navigate to the shopping list screen with the selected product and quantity
-    navigation.navigate("ShoppingList", {
-      product: filteredProducts[0],
-      quantity,
-    });
+    if (filteredProducts.length > 0) {
+      // Navigate to the shopping list screen with the selected product and quantity
+      navigation.navigate("ShoppingList", {
+        product: filteredProducts[0],
+        quantity,
+      });
+    }
   };
 
   return (
@@ -107,11 +109,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   quantityInput: {
+    fontSize: 20,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    paddingHorizontal: 10,
-    width: 50,
+    paddingHorizontal: 15,
+    width: 80,
     textAlign: "center",
   },
   addButton: {

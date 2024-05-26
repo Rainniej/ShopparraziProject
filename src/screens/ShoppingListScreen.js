@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,11 @@ const ProductDetailScreen = ({ route }) => {
   const { product } = route.params;
   const [quantity, setQuantity] = useState(0);
 
+  useEffect(() => {
+    // Set quantity to 0 when the component mounts
+    setQuantity(0);
+  }, []);
+
   const handleAddToCart = () => {
     // Show alert with product name and quantity
     Alert.alert(
@@ -32,13 +37,23 @@ const ProductDetailScreen = ({ route }) => {
     navigation.navigate("Home");
   };
 
-  // Inside the return statement, within the TouchableOpacity for the "Continue Shopping" button
-  <TouchableOpacity
-    style={[styles.button, styles.fullWidth]}
-    onPress={handleContinueShopping}
-  >
-    <Text style={styles.buttonText}>Continue Shopping</Text>
-  </TouchableOpacity>;
+  const handleDeleteProduct = () => {
+    Alert.alert(
+      "Delete Product",
+      "Are you sure you want to delete this product?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => navigation.navigate("Home"),
+          style: "destructive",
+        },
+      ]
+    );
+  };
 
   const updateQuantity = (newQuantity) => {
     if (newQuantity >= 0) {
@@ -50,22 +65,32 @@ const ProductDetailScreen = ({ route }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <View key={product.id} style={styles.productItem}>
         <Image source={product.image} style={styles.productImage} />
-        <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.quantityLabel}>180g $3.00</Text>
-        <View style={styles.quantityContainer}>
-          <TouchableOpacity
-            style={styles.quantityButton}
-            onPress={() => updateQuantity(quantity - 1)}
-          >
-            <Ionicons name="remove" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.quantity}>{quantity}</Text>
-          <TouchableOpacity
-            style={styles.quantityButton}
-            onPress={() => updateQuantity(quantity + 1)}
-          >
-            <Ionicons name="add" size={24} color="black" />
-          </TouchableOpacity>
+        <View style={styles.productInfoContainer}>
+          <View style={styles.productHeader}>
+            <Text style={styles.productName}>{product.name}</Text>
+            <TouchableOpacity
+              style={styles.deleteButtonContainer}
+              onPress={handleDeleteProduct}
+            >
+              <Ionicons name="trash" size={30} color="red" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.quantityLabel}>180g $3.00</Text>
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => updateQuantity(quantity - 1)}
+            >
+              <Ionicons name="remove" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.quantity}>{quantity}</Text>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={() => updateQuantity(quantity + 1)}
+            >
+              <Ionicons name="add" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -103,6 +128,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  productHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginBottom: 10,
+  },
+  productInfoContainer: {
+    alignItems: "center",
+    width: "100%",
+  },
   productImage: {
     width: 200,
     height: 200,
@@ -114,6 +150,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
+    marginLeft: 50,
   },
   quantityLabel: {
     fontSize: 16,
@@ -142,10 +179,10 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: "#FF006B",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 50,
     borderRadius: 5,
-    marginVertical: 5,
+    marginVertical: 7,
     alignItems: "center",
   },
   fullWidth: {
@@ -154,6 +191,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  deleteButtonContainer: {
+    top: -220,
+    right: 30,
   },
 });
 

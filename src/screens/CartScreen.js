@@ -1,82 +1,124 @@
-// src/screens/CartScreen.js
-import React, { useContext } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
   StyleSheet,
   FlatList,
-  Image,
-  TouchableOpacity,
 } from "react-native";
-import CartContext from "../context/CartContext";
-import { Ionicons } from "@expo/vector-icons";
 
 const CartScreen = ({ navigation }) => {
-  const { cart, setCart } = useContext(CartContext);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [deliveryOption, setDeliveryOption] = useState("");
+  const [cart, setCart] = useState([]);
 
-  const updateQuantity = (id, newQuantity) => {
-    setCart((currentItems) =>
-      currentItems.map((item) => {
-        if (item.id === id) {
-          return { ...item, quantity: newQuantity > 0 ? newQuantity : 1 };
-        }
-        return item;
-      })
+  const handlePlaceOrder = () => {
+    navigation.navigate("CheckoutScreen");
+  };
+
+  const handleCancelOrder = () => {
+    Alert.alert(
+      "Cancel Order",
+      "Are you sure you want to cancel the order?",
+      [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            Alert.alert("Order Cancelled", "Your order has been cancelled.");
+            // Reset the form fields and cart if needed
+          },
+        },
+      ],
+      { cancelable: false }
     );
   };
 
-  const removeFromCart = (id) => {
-    setCart((currentItems) => currentItems.filter((item) => item.id !== id));
+  const toggleDeliveryOption = (option) => {
+    setDeliveryOption(option);
   };
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={cart}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.itemContainer}>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemDetail}>Size: {item.size}</Text>
-            <Text style={styles.itemDetail}>
-              Price: ${item.price.toFixed(2)}
-            </Text>
-            <View style={styles.quantityContainer}>
-              <TouchableOpacity
-                onPress={() => updateQuantity(item.id, item.quantity - 1)}
-              >
-                <Ionicons
-                  name="remove-circle-outline"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
-              <Text style={styles.quantity}>{item.quantity}</Text>
-              <TouchableOpacity
-                onPress={() => updateQuantity(item.id, item.quantity + 1)}
-              >
-                <Ionicons name="add-circle-outline" size={24} color="black" />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.itemDetail}>Store: {item.store}</Text>
-            <View style={styles.photoContainer}>
-              <Image source={item.image} style={styles.photo} />
-            </View>
+      <View>
+        <Text style={styles.title}>Order Details</Text>
+        <TextInput
+          placeholder="First Name"
+          value={firstName}
+          onChangeText={setFirstName}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Last Name"
+          value={lastName}
+          onChangeText={setLastName}
+          style={styles.input}
+        />
+        <View style={styles.deliveryOptions}>
+          <View style={styles.deliveryOptionContainer}>
             <TouchableOpacity
-              onPress={() => removeFromCart(item.id)}
-              style={styles.deleteButton}
+              onPress={() => toggleDeliveryOption("Pickup at store")}
+              style={[
+                styles.deliveryOption,
+                deliveryOption === "Pickup at store" &&
+                  styles.selectedDeliveryOption,
+              ]}
             >
-              <Ionicons name="trash-outline" size={24} color="red" />
+              <Text style={styles.deliveryOptionText}>Pickup at store</Text>
             </TouchableOpacity>
           </View>
+          <View style={styles.deliveryOptionContainer}>
+            <TouchableOpacity
+              onPress={() => toggleDeliveryOption("Home Delivery")}
+              style={[
+                styles.deliveryOption,
+                deliveryOption === "Home Delivery" &&
+                  styles.selectedDeliveryOption,
+              ]}
+            >
+              <Text style={styles.deliveryOptionText}>Home Delivery</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+      <View style={styles.cartContainer}>
+        <Text style={styles.title}>Cart</Text>
+        {cart.length === 0 ? (
+          <Text style={styles.errorText}>Cart is empty.</Text>
+        ) : (
+          <FlatList
+            data={cart}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <Text style={styles.itemText}>
+                {item.name} - {item.price}
+              </Text>
+            )}
+          />
         )}
-      />
-      <TouchableOpacity
-        style={styles.checkoutButton}
-        onPress={() => navigation.navigate("Checkout")}
-      >
-        <Text style={styles.checkoutButtonText}>Go to Checkout</Text>
-      </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          onPress={handlePlaceOrder}
+          style={[styles.button, { backgroundColor: "blue" }]}
+        >
+          <Text style={styles.buttonText}>Place Order</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          onPress={handleCancelOrder}
+          style={[styles.button, { backgroundColor: "red" }]}
+        >
+          <Text style={styles.buttonText}>Cancel Order</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -84,75 +126,66 @@ const CartScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
     padding: 16,
+    marginTop: 20,
   },
-  itemContainer: {
-    borderWidth: 1,
-    borderColor: "#FF006B",
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    position: "relative",
-  },
-  itemName: {
-    fontSize: 18,
+  title: {
+    fontSize: 20,
     fontWeight: "bold",
+    marginBottom: 16,
+    color: "#FF006B",
+  },
+  input: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  deliveryOptions: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  deliveryOptionContainer: {
+    flex: 1,
+  },
+  deliveryOption: {
+    backgroundColor: "#ccc",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  selectedDeliveryOption: {
+    backgroundColor: "black",
+  },
+  deliveryOptionText: {
+    color: "#fff",
+    textAlign: "center",
+  },
+  cartContainer: {
+    marginTop: 20,
+  },
+  itemText: {
+    fontSize: 16,
     marginBottom: 8,
   },
-  itemDetail: {
+  errorText: {
     fontSize: 16,
-    marginBottom: 4,
+    color: "red",
   },
-  quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 8,
+  buttonContainer: {
+    marginTop: 10,
   },
-  quantity: {
-    fontSize: 18,
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
     fontWeight: "bold",
-    marginHorizontal: 16,
-  },
-  storeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  storeName: {
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  storeIndicator: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: "red",
-  },
-  photoContainer: {
-    flex: 1,
-    marginLeft: 170, //
-    marginTop: -100,
-  },
-  photo: {
-    width: 120,
-    height: 120,
-    resizeMode: "contain",
-  },
-  deleteButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-  },
-  checkoutButton: {
-    backgroundColor: "#FF006B",
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  checkoutButtonText: {
-    color: "white",
-    fontSize: 18,
+    textAlign: "center",
   },
 });
 
